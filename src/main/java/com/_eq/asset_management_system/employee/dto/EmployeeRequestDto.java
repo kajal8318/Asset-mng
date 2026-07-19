@@ -14,7 +14,9 @@ public class EmployeeRequestDto {
 
     private String employeeCode;
 
-    private String name;
+    private String firstName;
+
+    private String lastName;
 
     private LocalDate doj;
 
