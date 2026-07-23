@@ -1,8 +1,8 @@
 package com._eq.asset_management_system.common.enums;
 
 public enum AssignmentStatus {
-	Assigned,
-	Returned,
-	Cancellled
+	ASSIGNED,
+	RETURNED,
+	CANCELLED
 	
 }

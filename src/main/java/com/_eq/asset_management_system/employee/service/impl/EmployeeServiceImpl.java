@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com._eq.asset_management_system.common.enums.EmployeeStatus;
+import com._eq.asset_management_system.employee.mapper.EmployeeMapper;
 import org.springframework.stereotype.Service;
 
 import com._eq.asset_management_system.employee.dto.EmployeeRequestDto;
@@ -21,6 +22,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
 
+	private final EmployeeMapper employeeMapper;
+
 	@Override
 	public EmployeeResponseDto createEmployee(EmployeeRequestDto request) {
 		if (employeeRepository.existsByEmployeeCode(request.getEmployeeCode())) {
@@ -30,36 +33,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 		if (employeeRepository.existsByEmail(request.getEmail())) {
 		    throw new RuntimeException("Email already exists");
 		}
-		Employee employee = new Employee();
-
-		employee.setEmployeeCode(request.getEmployeeCode());
-		employee.setFirstName(request.getFirstName());
-		employee.setLastName(request.getLastName());
-		employee.setDateOfJoining(request.getDoj());
-		employee.setEmail(request.getEmail());
-		employee.setPhoneNumber(request.getPhoneNumber());
-		employee.setDepartment(request.getDepartment());
-		employee.setDesignation(request.getDesignation());
-		employee.setStatus(request.getStatus());
+		Employee employee = employeeMapper.toEntity(request);
 
 		Employee savedEmployee = employeeRepository.save(employee);
-		
-		EmployeeResponseDto response = new EmployeeResponseDto();
 
-		response.setId(savedEmployee.getId());
-		response.setEmployeeCode(savedEmployee.getEmployeeCode());
-		response.setFirstName(employee.getFirstName() );
-		response.setLastName(employee.getLastName());
-		response.setDoj(savedEmployee.getDateOfJoining());
-		response.setEmail(savedEmployee.getEmail());
-		response.setPhoneNumber(savedEmployee.getPhoneNumber());
-		response.setDepartment(savedEmployee.getDepartment());
-		response.setDesignation(savedEmployee.getDesignation());
-		response.setStatus(savedEmployee.getStatus());
-		response.setCreatedAt(savedEmployee.getCreatedAt());
-		response.setUpdatedAt(savedEmployee.getUpdatedAt());
+		return employeeMapper.toResponseDto(savedEmployee);
 
-		return response;
 	}
 
 
@@ -69,29 +48,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public List<EmployeeResponseDto> getAllEmployees() {
 
-		List<Employee> employees = employeeRepository.findAll();
+		List<Employee> employees = employeeRepository.findByStatus(EmployeeStatus.ACTIVE);
 
 		List<EmployeeResponseDto> responseList = new ArrayList<>();
 
-		for (Employee employee : employees) {
+		for(Employee employee : employees){
 
-			EmployeeResponseDto response = new EmployeeResponseDto();
+			responseList.add(employeeMapper.toResponseDto(employee));
 
-			response.setId(employee.getId());
-			response.setEmployeeCode(employee.getEmployeeCode());
-			response.setFirstName(employee.getFirstName());
-			response.setLastName(employee.getLastName());
-			response.setDoj(employee.getDateOfJoining());
-			response.setEmail(employee.getEmail());
-			response.setPhoneNumber(employee.getPhoneNumber());
-			response.setDepartment(employee.getDepartment());
-			response.setDesignation(employee.getDesignation());
-			response.setStatus(employee.getStatus());
-			response.setCreatedAt(employee.getCreatedAt());
-			response.setUpdatedAt(employee.getUpdatedAt());
-
-
-			responseList.add(response);
 		}
 
 		return responseList;
@@ -99,40 +63,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public EmployeeResponseDto getEmployeeById(Long id) {
 
-		// Step 1: Find employee by id
-		Optional<Employee> optionalEmployee = employeeRepository.findById(id);
-
-		// Step 2: If employee is not found, throw an exception
-		Employee employee = optionalEmployee.orElseThrow(
-				() -> new RuntimeException("Employee not found with id: " + id)
-		);
+		Employee employee = employeeRepository
+				.findByIdAndStatus(id, EmployeeStatus.ACTIVE)
+				.orElseThrow(() ->
+						new RuntimeException("Active employee not found with id: " + id));
 
 		// Step 3: Create Response DTO
-		EmployeeResponseDto response = new EmployeeResponseDto();
-
-		// Step 4: Map Entity to Response DTO
-		response.setId(employee.getId());
-		response.setEmployeeCode(employee.getEmployeeCode());
-		response.setFirstName(employee.getFirstName());
-		response.setLastName(employee.getLastName());
-		response.setDoj(employee.getDateOfJoining());
-		response.setEmail(employee.getEmail());
-		response.setPhoneNumber(employee.getPhoneNumber());
-		response.setDepartment(employee.getDepartment());
-		response.setDesignation(employee.getDesignation());
-		response.setStatus(employee.getStatus());
-		response.setCreatedAt(employee.getCreatedAt());
-		response.setUpdatedAt(employee.getUpdatedAt());
-
-		// Step 5: Return response
-		return response;
+		return employeeMapper.toResponseDto(employee);
 	}
 
 	@Override
 	public EmployeeResponseDto updateEmployee(Long id, EmployeeRequestDto request) {
 	// Check if employee exists
-			Employee employee = employeeRepository.findById(id)
-					.orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+		Employee employee = employeeRepository
+				.findByIdAndStatus(id, EmployeeStatus.ACTIVE)
+				.orElseThrow(() ->
+						new RuntimeException("Active employee not found with id: " + id));
 
 			// Check duplicate employee code
 			if (!employee.getEmployeeCode().equals(request.getEmployeeCode())
@@ -146,45 +92,19 @@ public class EmployeeServiceImpl implements EmployeeService {
 				throw new RuntimeException("Email already exists");
 			}
 
-			// Update fields
-			employee.setEmployeeCode(request.getEmployeeCode());
-			employee.setFirstName(request.getFirstName());
-			employee.setLastName(request.getLastName());
-			employee.setDateOfJoining(request.getDoj());
-			employee.setEmail(request.getEmail());
-			employee.setPhoneNumber(request.getPhoneNumber());
-			employee.setDepartment(request.getDepartment());
-			employee.setDesignation(request.getDesignation());
-			employee.setStatus(request.getStatus());
+		employeeMapper.updateEntity(request, employee);
 
-			// Save updated employee
-			Employee updatedEmployee = employeeRepository.save(employee);
+		Employee savedEmployee = employeeRepository.save(employee);
 
-			// Prepare response
-			EmployeeResponseDto response = new EmployeeResponseDto();
-
-			response.setId(updatedEmployee.getId());
-			response.setEmployeeCode(updatedEmployee.getEmployeeCode());
-			response.setFirstName(updatedEmployee.getFirstName());
-			response.setLastName(updatedEmployee.getLastName());
-			response.setDoj(updatedEmployee.getDateOfJoining());
-			response.setEmail(updatedEmployee.getEmail());
-			response.setPhoneNumber(updatedEmployee.getPhoneNumber());
-			response.setDepartment(updatedEmployee.getDepartment());
-			response.setDesignation(updatedEmployee.getDesignation());
-			response.setStatus(updatedEmployee.getStatus());
-			response.setCreatedAt(updatedEmployee.getCreatedAt());
-			response.setUpdatedAt(updatedEmployee.getUpdatedAt());
-
-			return response;
+		return employeeMapper.toResponseDto(savedEmployee);
 		}
 
 	@Override
 	public void deleteEmployee(Long id) {
-
-		Employee employee = employeeRepository.findById(id)
+		Employee employee = employeeRepository
+				.findByIdAndStatus(id, EmployeeStatus.ACTIVE)
 				.orElseThrow(() ->
-						new RuntimeException("Employee not found with id: " + id));
+						new RuntimeException("Active employee not found with id: " + id));
 
 		employee.setStatus(EmployeeStatus.RESIGNED);
 

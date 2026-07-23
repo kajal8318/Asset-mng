@@ -4,12 +4,12 @@ import java.time.LocalDate;
 
 import com._eq.asset_management_system.common.enums.EmployeeStatus;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 
-@Getter
-@Setter
+@Data
 public class EmployeeRequestDto {
 
     private String employeeCode;

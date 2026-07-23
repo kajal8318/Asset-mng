@@ -1,5 +1,7 @@
 package com._eq.asset_management_system.asset.entity;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import com._eq.asset_management_system.assignment.entity.AssetAssignment;
@@ -40,6 +42,10 @@ public class Asset extends BaseEntity{
 	
 	@Enumerated(EnumType.STRING)
 	private AssetStatus status;
+
+	private LocalDate purchaseDate;
+
+	private BigDecimal purchasePrice;
 	
 
 }
