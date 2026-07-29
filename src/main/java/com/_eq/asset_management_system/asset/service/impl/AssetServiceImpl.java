@@ -3,6 +3,8 @@ package com._eq.asset_management_system.asset.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com._eq.asset_management_system.common.exception.AlreadyExistsException;
+import com._eq.asset_management_system.common.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com._eq.asset_management_system.asset.dto.AssetRequestDto;
@@ -28,12 +30,12 @@ public class AssetServiceImpl implements AssetService {
 
         // Duplicate Asset Code
         if (assetRepository.existsByAssetCode(request.getAssetCode())) {
-            throw new RuntimeException("Asset code already exists");
+            throw new AlreadyExistsException("Asset code already exists");
         }
 
         // Duplicate Serial Number
         if (assetRepository.existsBySerialNumber(request.getSerialNumber())) {
-            throw new RuntimeException("Serial number already exists");
+            throw new AlreadyExistsException("Serial number already exists");
         }
 
         Asset asset = assetMapper.toEntity(request);
@@ -69,7 +71,7 @@ public class AssetServiceImpl implements AssetService {
         Asset asset = assetRepository
                 .findByIdAndStatusNot(id, AssetStatus.RETIRED)
                 .orElseThrow(() ->
-                        new RuntimeException("Asset not found"));
+                        new ResourceNotFoundException("Asset not found"));
 
         return assetMapper.toResponseDto(asset);
     }
@@ -80,20 +82,20 @@ public class AssetServiceImpl implements AssetService {
         Asset asset = assetRepository
                 .findByIdAndStatusNot(id, AssetStatus.RETIRED)
                 .orElseThrow(() ->
-                        new RuntimeException("Asset not found"));
+                        new ResourceNotFoundException("Asset not found"));
 
         // Duplicate Asset Code
         if (!asset.getAssetCode().equals(request.getAssetCode())
                 && assetRepository.existsByAssetCode(request.getAssetCode())) {
 
-            throw new RuntimeException("Asset code already exists");
+            throw new AlreadyExistsException("Asset code already exists");
         }
 
         // Duplicate Serial Number
         if (!asset.getSerialNumber().equals(request.getSerialNumber())
                 && assetRepository.existsBySerialNumber(request.getSerialNumber())) {
 
-            throw new RuntimeException("Serial number already exists");
+            throw new AlreadyExistsException("Serial number already exists");
         }
 
         assetMapper.updateEntity(request, asset);
@@ -109,7 +111,7 @@ public class AssetServiceImpl implements AssetService {
         Asset asset = assetRepository
                 .findByIdAndStatusNot(id, AssetStatus.RETIRED)
                 .orElseThrow(() ->
-                        new RuntimeException("Asset not found"));
+                        new ResourceNotFoundException("Asset not found"));
 
         asset.setStatus(AssetStatus.RETIRED);
 

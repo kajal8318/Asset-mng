@@ -11,6 +11,9 @@ import com._eq.asset_management_system.assignment.service.AssignmentService;
 import com._eq.asset_management_system.common.enums.AssignmentStatus;
 import com._eq.asset_management_system.common.enums.EmployeeStatus;
 import com._eq.asset_management_system.common.enums.AssetStatus;
+import com._eq.asset_management_system.common.exception.AlreadyExistsException;
+import com._eq.asset_management_system.common.exception.BadRequestException;
+import com._eq.asset_management_system.common.exception.ResourceNotFoundException;
 import com._eq.asset_management_system.employee.entity.Employee;
 import com._eq.asset_management_system.employee.repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
@@ -38,19 +41,18 @@ public class AssignmentServiceImpl implements AssignmentService {
                         request.getEmployeeId(),
                         EmployeeStatus.ACTIVE)
                 .orElseThrow(() ->
-                        new RuntimeException("Employee not found"));
+                        new ResourceNotFoundException("Employee not found"));
 
         Asset asset = assetRepository
                 .findByIdAndStatusNot(
                         request.getAssetId(),
                         AssetStatus.RETIRED)
                 .orElseThrow(() ->
-                        new RuntimeException("Asset not found"));
+                 new ResourceNotFoundException("Asset not found"));
 
         if (asset.getStatus() != AssetStatus.AVAILABLE) {
 
-            throw new RuntimeException(
-                    "Asset is not available");
+            throw new BadRequestException("Asset is not available");
         }
 
         AssetAssignment assignment =
@@ -92,14 +94,24 @@ public class AssignmentServiceImpl implements AssignmentService {
         AssetAssignment assignment = assignmentRepository
                 .findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Assignment not found"));
+                 new ResourceNotFoundException("Assignment not found"));
 
         return assignmentMapper.toResponseDto(assignment);
     }
 
     @Override
     public AssignmentResponseDto updateAssignment(Long id, AssignmentRequestDto request) {
-        return null;
+        AssetAssignment assetAssignment = assignmentRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Assignment not found"));
+        assignmentMapper.updateEntity(request, assetAssignment);
+
+       AssetAssignment updateAssignment= assignmentRepository.save(assetAssignment);
+
+        return assignmentMapper.toResponseDto(updateAssignment);
+
+
     }
 
     @Override
@@ -107,11 +119,11 @@ public class AssignmentServiceImpl implements AssignmentService {
         AssetAssignment assignment = assignmentRepository
                 .findById(assignmentId)
                 .orElseThrow(() ->
-                        new RuntimeException("Assignment not found"));
+                        new ResourceNotFoundException("Assignment not found"));
 
         if (assignment.getStatus() == AssignmentStatus.RETURNED) {
 
-            throw new RuntimeException("Asset already returned");
+            throw new AlreadyExistsException("Asset already returned");
 
         }
 

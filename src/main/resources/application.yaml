@@ -6,9 +6,9 @@ spring:
     name: asset-management-system
 
   datasource:
-    url: jdbc:postgresql://staging-db.cluster-ct8ao6q4s7fd.ap-south-1.rds.amazonaws.com:5432/new_joiners
-    username: kajal
-    password: Kajal123
+    url:
+    username:
+    password:
 
   jpa:
     hibernate:

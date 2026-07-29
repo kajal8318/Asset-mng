@@ -6,8 +6,7 @@ import java.time.LocalDateTime;
 import com._eq.asset_management_system.common.enums.EmployeeStatus;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+
 
 @Data
 public class EmployeeResponseDto {

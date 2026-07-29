@@ -2,6 +2,7 @@ package com._eq.asset_management_system.asset.controller;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import com._eq.asset_management_system.asset.dto.AssetRequestDto;
@@ -18,7 +19,7 @@ public class AssetController {
     private final AssetService assetService;
 
     @PostMapping
-    public AssetResponseDto createAsset(@RequestBody AssetRequestDto request) {
+    public AssetResponseDto createAsset( @Valid @RequestBody AssetRequestDto request) {
         return assetService.createAsset(request);
     }
 
@@ -33,7 +34,7 @@ public class AssetController {
     }
 
     @PutMapping("/{id}")
-    public AssetResponseDto updateAsset(@PathVariable Long id,
+    public AssetResponseDto updateAsset( @Valid @PathVariable Long id,
                                         @RequestBody AssetRequestDto request) {
         return assetService.updateAsset(id, request);
     }

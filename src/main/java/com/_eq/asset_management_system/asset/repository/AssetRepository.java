@@ -7,8 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com._eq.asset_management_system.asset.entity.Asset;
 import com._eq.asset_management_system.common.enums.AssetStatus;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface AssetRepository extends JpaRepository<Asset, Long> {
+public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecificationExecutor<Asset> {
 
     boolean existsByAssetCode(String assetCode);
 
