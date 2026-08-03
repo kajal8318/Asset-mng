@@ -1,7 +1,8 @@
 package com._eq.asset_management_system.user.mapper;
 
 import com._eq.asset_management_system.employee.entity.Employee;
-import com._eq.asset_management_system.user.dto.UserRequestDto;
+import com._eq.asset_management_system.user.dto.CreateUserRequestDto;
+import com._eq.asset_management_system.user.dto.UpdateUserRequestDto;
 import com._eq.asset_management_system.user.dto.UserResponseDto;
 import com._eq.asset_management_system.user.entity.User;
 import org.springframework.stereotype.Component;
@@ -10,14 +11,13 @@ import org.springframework.stereotype.Component;
 public class UserMapper {
 
 
-    public User toEntity(UserRequestDto request, Employee employee) {
+    public User toEntity(CreateUserRequestDto request, Employee employee) {
 
         User user = new User();
 
         user.setEmployee(employee);
-        user.setPassword(request.getPassword());
         user.setRole(request.getRole());
-        user.setIsActive(request.getIsActive());
+        user.setIsActive(true);
 
         return user;
     }
@@ -34,19 +34,24 @@ public class UserMapper {
                 user.getEmployee().getFirstName() + " " +
                         user.getEmployee().getLastName());
 
+        response.setEmployeeEmail(user.getEmployee().getEmail());
+
+        response.setFirebaseUid(user.getFirebaseUid());
+
         response.setRole(user.getRole());
+
         response.setIsActive(user.getIsActive());
-        response.setCreatedAt(user.getCreatedAt());
-        response.setUpdatedAt(user.getUpdatedAt());
+
+
 
         return response;
     }
 
     // RequestDTO -> Existing Entity (Update)
-    public void updateEntity(UserRequestDto request, User user) {
+    public void updateEntity(UpdateUserRequestDto request, User user) {
 
-        user.setPassword(request.getPassword());
         user.setRole(request.getRole());
-        user.setIsActive(request.getIsActive());
+
+
     }
 }

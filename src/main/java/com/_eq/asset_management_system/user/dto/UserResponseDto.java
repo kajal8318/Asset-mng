@@ -1,17 +1,22 @@
 package com._eq.asset_management_system.user.dto;
 
-import com._eq.asset_management_system.common.entity.BaseEntity;
 import com._eq.asset_management_system.common.enums.Role;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-public class UserResponseDto extends BaseEntity {
+@Getter
+@Setter
+public class UserResponseDto {
 
     private Long id;
 
     private Long employeeId;
 
     private String employeeName;
+
+    private String employeeEmail;
+
+    private String firebaseUid;
 
     private Role role;
 

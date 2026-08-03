@@ -3,8 +3,16 @@ package com._eq.asset_management_system.asset.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com._eq.asset_management_system.asset.dto.AssetSearchRequest;
+import com._eq.asset_management_system.asset.specification.AssetSpecification;
+import com._eq.asset_management_system.common.dto.PageResponse;
 import com._eq.asset_management_system.common.exception.AlreadyExistsException;
 import com._eq.asset_management_system.common.exception.ResourceNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com._eq.asset_management_system.asset.dto.AssetRequestDto;
@@ -49,20 +57,72 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public List<AssetResponseDto> getAllAssets() {
+    public PageResponse<AssetResponseDto> getAllAssets(
+            AssetSearchRequest request,
+            int page,
+            int size,
+            String direction,
+            String sortBy) {
 
-        List<Asset> assets =
-                assetRepository.findByStatusNot(AssetStatus.RETIRED);
+        // Create Sort object
+        Sort sort = Sort.by(
+                Sort.Direction.fromString(direction),
+                sortBy);
 
-        List<AssetResponseDto> responseList = new ArrayList<>();
+        // Create Pageable object
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        for (Asset asset : assets) {
+        // Start with an empty Specification
+        Specification<Asset> specification =
+                (root, query, cb) -> cb.conjunction();
 
-            responseList.add(assetMapper.toResponseDto(asset));
+        // Filter by Asset Code
+        specification = specification.and(
+                AssetSpecification.hasAssetCode(
+                        request.getAssetCode()));
 
-        }
+        // Filter by Asset Name
+        specification = specification.and(
+                AssetSpecification.assetNameContains(
+                        request.getAssetName()));
 
-        return responseList;
+        // Filter by Serial Number
+        specification = specification.and(
+                AssetSpecification.hasSerialNumber(
+                        request.getSerialNumber()));
+
+        // Filter by Category
+        specification = specification.and(
+                AssetSpecification.hasCategory(
+                        request.getCategory()));
+
+        // Filter by Status
+        specification = specification.and(
+                AssetSpecification.hasStatus(
+                        request.getStatus()));
+
+        // Fetch data
+        Page<Asset> assetPage =
+                assetRepository.findAll(
+                        specification,
+                        pageable);
+
+        // Convert Entity Page to DTO Page
+        Page<AssetResponseDto> responsePage =
+                assetPage.map(assetMapper::toResponseDto);
+
+        // Prepare custom page response
+        PageResponse<AssetResponseDto> response =
+                new PageResponse<>();
+
+        response.setContent(responsePage.getContent());
+        response.setPageNumber(responsePage.getNumber());
+        response.setPageSize(responsePage.getSize());
+        response.setTotalElements(responsePage.getTotalElements());
+        response.setTotalPages(responsePage.getTotalPages());
+        response.setLast(responsePage.isLast());
+
+        return response;
     }
 
     @Override

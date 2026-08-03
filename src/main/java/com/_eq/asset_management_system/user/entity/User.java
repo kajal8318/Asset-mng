@@ -3,12 +3,8 @@ import com._eq.asset_management_system.common.entity.BaseEntity;
 import com._eq.asset_management_system.common.enums.Role;
 import com._eq.asset_management_system.employee.entity.Employee;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,15 +17,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User extends BaseEntity {
-	@OneToOne
-	@JoinColumn(name = "employee_id")
-	private Employee employee;
 
-    private String password;
+    @OneToOne
+    @JoinColumn(name = "employee_id", nullable = false)
+    @NotNull(message = "Employee Id is required")
+    private Employee employee;
+
+    @Column(name = "firebase_uid", unique = true, nullable = false)
+    private String firebaseUid;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Role is required")
     private Role role;
 
     private Boolean isActive;
-
 }

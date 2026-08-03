@@ -2,6 +2,8 @@ package com._eq.asset_management_system.asset.controller;
 
 import java.util.List;
 
+import com._eq.asset_management_system.asset.dto.AssetSearchRequest;
+import com._eq.asset_management_system.common.dto.PageResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +26,19 @@ public class AssetController {
     }
 
     @GetMapping
-    public List<AssetResponseDto> getAllAssets() {
-        return assetService.getAllAssets();
+    public PageResponse<AssetResponseDto> getAllAssets(
+            @ModelAttribute AssetSearchRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "assetCode") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+
+        return assetService.getAllAssets(
+                request,
+                page,
+                size,
+                direction,
+                sortBy);
     }
 
     @GetMapping("/{id}")

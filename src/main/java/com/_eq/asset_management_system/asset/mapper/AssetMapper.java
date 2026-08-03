@@ -3,6 +3,7 @@ package com._eq.asset_management_system.asset.mapper;
 import com._eq.asset_management_system.asset.dto.AssetRequestDto;
 import com._eq.asset_management_system.asset.dto.AssetResponseDto;
 import com._eq.asset_management_system.asset.entity.Asset;
+import com._eq.asset_management_system.common.enums.AssetStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,6 +16,7 @@ public class AssetMapper {
         asset.setAssetCode(request.getAssetCode());
         asset.setName(request.getName());
         asset.setSerialNumber(request.getSerialNumber());
+        asset.setStatus(AssetStatus.AVAILABLE);
 
         return asset;
     }
@@ -30,6 +32,7 @@ public class AssetMapper {
         response.setStatus(asset.getStatus());
         response.setCreatedAt(asset.getCreatedAt());
         response.setUpdatedAt(asset.getUpdatedAt());
+        response.setStatus(asset.getStatus());
 
         return response;
     }
