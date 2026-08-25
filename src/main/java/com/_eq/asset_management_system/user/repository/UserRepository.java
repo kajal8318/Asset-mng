@@ -13,6 +13,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmployee(Employee employee);
 
+    Optional<User> findByFirebaseUid(String firebaseUid);
+
     Optional<User> findByFirebaseUidAndIsActive(String firebaseUid, Boolean isActive);
 
     List<User> findByIsActive(Boolean isActive);

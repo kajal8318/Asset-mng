@@ -100,6 +100,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUserByFirebaseUid(String firebaseUid) {
+
+        return userRepository.findByFirebaseUid(firebaseUid)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "User not found with Firebase UID: " + firebaseUid
+                        )
+                );
+    }
+
+    @Override
     public void deleteUser(Long id) {
 
         User user = userRepository
