@@ -2,6 +2,7 @@ package com._eq.asset_management_system.notification.controller;
 
 import java.util.List;
 
+import com._eq.asset_management_system.notification.dto.NotificationCreateDto;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -11,7 +12,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com._eq.asset_management_system.notification.dto.NotificationResponseDto;
 import com._eq.asset_management_system.notification.service.NotificationService;
-import com._eq.asset_management_system.notification.sse.SseEmitterService;
+import com._eq.asset_management_system.notification.service.sse.SseEmitterService;
 import com._eq.asset_management_system.user.entity.User;
 import com._eq.asset_management_system.user.service.UserService;
 
@@ -58,6 +59,15 @@ public class NotificationController {
         return ResponseEntity.ok(
                 notificationService.getUnreadNotifications()
         );
+    }
+
+    @PostMapping("/broadcast")
+    public ResponseEntity<Void> broadcastNotification(
+            @RequestBody NotificationCreateDto request) {
+
+        notificationService.broadcastNotification(request);
+
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/unread/count")

@@ -1,6 +1,7 @@
 package com._eq.asset_management_system.security.filter;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,7 +34,12 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
             String token = authorizationHeader.substring(7);
 
             FirebaseToken decodedToken =
-                    FirebaseAuth.getInstance().verifyIdToken(token);
+                    null;
+            try {
+                decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
+            } catch (FirebaseAuthException e) {
+                throw new RuntimeException(e);
+            }
 
             String firebaseUid =
                     decodedToken.getUid();

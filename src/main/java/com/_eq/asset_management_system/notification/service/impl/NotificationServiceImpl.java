@@ -2,6 +2,7 @@ package com._eq.asset_management_system.notification.service.impl;
 
 import java.util.List;
 
+import com._eq.asset_management_system.notification.dto.NotificationCreateDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,7 +11,7 @@ import com._eq.asset_management_system.notification.dto.NotificationResponseDto;
 import com._eq.asset_management_system.notification.entity.Notification;
 import com._eq.asset_management_system.notification.repository.NotificationRepository;
 import com._eq.asset_management_system.notification.service.NotificationService;
-import com._eq.asset_management_system.notification.sse.SseEmitterService;
+import com._eq.asset_management_system.notification.service.sse.SseEmitterService;
 import com._eq.asset_management_system.user.entity.User;
 import com._eq.asset_management_system.user.repository.UserRepository;
 
@@ -69,6 +70,31 @@ public class NotificationServiceImpl implements NotificationService {
                 .stream()
                 .map(this::mapToDto)
                 .toList();
+    }
+
+    @Override
+    public void broadcastNotification(NotificationCreateDto request) {
+
+        List<User> users = userRepository.findAll();
+
+        for (User user : users) {
+
+            Notification notification = new Notification();
+
+            notification.setUser(user);
+            notification.setTitle(request.getTitle());
+            notification.setMessage(request.getMessage());
+            notification.setType(request.getType());
+            notification.setRead(false);
+
+            Notification savedNotification =
+                    notificationRepository.save(notification);
+
+            sseEmitterService.sendNotification(
+                    user.getId(),
+                    mapToDto(savedNotification)
+            );
+        }
     }
 
     @Override
